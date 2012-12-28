@@ -1,83 +1,71 @@
- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- 
-	Example from Nokia Maps API Playground, for more information visit http://api.maps.nokia.com
- -->
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="X-UA-Compatible" content="IE=7; IE=EmulateIE9"/>
-		<base href="http://developer.here.net/apiexplorer/examples/api-for-js/getting-started/basic-map.html" />
-		<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
-		<title>Nokia Maps API Example: Basic map</title>
-		<meta name="description" content="How to create a basic map with 5 lines of code"/>
-		<meta name="keywords" content="basic,Getting started"/>
-		<!-- For scaling content for mobile devices, setting the viewport to the width of the device-->
-		<meta name=viewport content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-		<!-- Styling for example container (NoteContainer & Logger)  -->
-		<link rel="stylesheet" type="text/css" href="http://developer.here.net/apiexplorer/examples/templates/js/exampleHelpers.css"/>
-		<!-- By default we add ?with=all to load every package available, it's better to change this parameter to your use case. Options ?with=maps|positioning|places|placesdata|directions|datarendering|all -->
-		
-    <script type="text/javascript" charset="utf-8" src="cordova-2.2.0.js"></script>
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=100">
+    <!-- Definitions of mobile-friendly documents e.g. for BlackBerry: -->
+    <meta name="HandheldFriendly" content="True">
+    <!-- Definitions of mobile-friendly documents for Microsoft Browser: -->
+    <meta name="MobileOptimized" content="width">
+    <!-- iOS viewport definitions: -->
+    <!--meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- disable BlackBerry UI events -->
+    <meta name="touch-event-mode" value="native">
+    <meta name="cursor-event-mode" value="native">
+    <!-- disables address sniffing -->
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="format-detection" content="address=no"/>
+    <link rel="stylesheet" href="mh5.css" type="text/css">
+    <link rel="stylesheet" href="colors.css" type="text/css">
+    <link rel="stylesheet" href="lastfm.css" type="text/css">
+</head>
+<body class="mh5_hwacc_body">
+    <script src="js/mh5.js"></script>
+    <script src="LastFmSearchAdapter.js"></script>
 
-<script type="text/javascript" charset="UTF-8" src="http://api.maps.nokia.com/2.2.3/jsl.js?with=all"></script>
-		<!-- JavaScript for example container (NoteContainer & Logger)  -->
-		<script type="text/javascript" charset="UTF-8" src="http://developer.here.net/apiexplorer/examples/templates/js/exampleHelpers.js"></script>
-		<style type="text/css">
-			html {
-				overflow:hidden;
-			}
-			
-			body {
-				margin: 0;
-				padding: 0;
-				overflow: hidden;
-				width: 100%;
-				height: 100%;
-				position: absolute;
-			}
-			
-			#mapContainer {
-				width: 100%;
-				height: 100%;
-				left: 0;
-				top: 0;
-				position: absolute;
-			}
-		</style>
-	</head>
-	<body>
-		<div id="mapContainer"></div>
-		<div id="uiContainer"></div>
-		<script type="text/javascript" id="exampleJsSource">
-/*	Set authentication token and appid 
-*	WARNING: this is a demo-only key
-*	please register on http://api.developer.nokia.com/ 
-*	and obtain your own developer's API key 
-*/
-nokia.Settings.set("appId", "_peU-uCkp-j8ovkzFGNU"); 
-nokia.Settings.set("authenticationToken", "gBoUkAMoxoqIWfxWA5DuMQ");
+    <header class="lastfm_header"></header>
+    <div id="application_location"></div>
 
-// Get the DOM node to which we will append the map
-var mapContainer = document.getElementById("mapContainer");
-// Create a map inside the map container DOM node
-var map = new nokia.maps.map.Display(mapContainer, {
-	// initial center and zoom level of the map
-	center: [52.51, 13.4],
-	zoomLevel: 10
-});
-
-/* We create a UI notecontainer for example description
- * NoteContainer is a UI helper function and not part of the Nokia Maps API
- * See exampleHelpers.js for implementation details 
- */
- var noteContainer = new NoteContainer({
-	id: "basicMapUi",
-	parent: document.getElementById("uiContainer"),
-	title: "Basic map example",
-	content:
-		'<p>This example shows how to create a basic map with few lines of code</p>'
-});
-
-
-		</script>
-	</body>
-</html>
+    <script>
+        //embed application with the last fm specific configuration
+        nokia.mh5.app.embed({
+            domNode: "#application_location",
+            appId: "demo_wwzrmoloHAFVvyW",
+            appCode: "Vgl_08RQWnjJo92Lw1F_uQ",
+            hideAddressBar: true,
+            configuration: {
+                //configuration for the search page
+                search: {
+                    searchAdapter: LastFmSearchAdapter,
+                    placeholder: "Search artists ..."
+                },
+                //configuration for the detail page
+                details: {
+                    listeners: {
+                        update: function(e) {
+                            var lfmEvent = e.data;
+                            //differentiate between last fm events and nokia places. The event overview si shown only for events
+                            if (!lfmEvent || !lfmEvent.eventId) {
+                                this.overview.visible = false;
+                            } else {
+                                this.overview.root.innerHTML =
+                                    "<div>" +
+                                        "<div>" + lfmEvent.headliner + "</div>" +
+                                        "<div> <span>Date</span>: " + lfmEvent.startDate + "</div>" +
+                                        "<div> <span>Attendance</span>: " + lfmEvent.attendance + "</div>" +
+                                    "</div>" +
+                                    "<img src=\"" + lfmEvent.eventImage + "\"/>";
+                                this.overview.visible = true;
+                            }
+                        }
+                    },
+                    customContent: {
+                        name: "overview",
+                        before: "summary",
+                        cssClass: "lastfm_detailsContent mh5_baseBackgroundColor"
+                    }
+                }
+            }
+        });
+    </script>
+</body>
